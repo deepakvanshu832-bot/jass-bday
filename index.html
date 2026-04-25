@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Jasmin ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Lora:ital@0;1&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --love-red: #d32f2f;
+            --deep-dark: #0a0508;
+            --rose-gold: #b76e79;
+            --soft-pink: #ffe6ea;
+            --gold: #dfb163;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--deep-dark);
+            color: var(--soft-pink);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Ambient Backgrounds */
+        .bg-layer {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, #2a0815 0%, var(--deep-dark) 100%);
+            z-index: -2; transition: opacity 2s ease;
+        }
+        .starry-bg {
+            background: url('https://www.transparenttextures.com/patterns/stardust.png'), linear-gradient(to bottom, #000428, #004e92);
+            opacity: 0;
+        }
+
+        /* Floating Hearts Particle System */
+        #particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; overflow: hidden;
+        }
+        .heart-particle {
+            position: absolute; bottom: -10%; color: rgba(211, 47, 47, 0.4);
+            font-size: 20px; animation: floatUp linear forwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translateY(-120vh) scale(1.5) rotate(360deg); opacity: 0; }
+        }
+
+        /* Music Toggle */
+        #music-toggle {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            background: rgba(255,255,255,0.1); border: 1px solid var(--rose-gold); border-radius: 50%;
+            width: 50px; height: 50px; color: var(--soft-pink); font-size: 20px;
+            cursor: pointer; backdrop-filter: blur(10px); transition: 0.3s;
+        }
+        #music-toggle:hover { background: rgba(211, 47, 47, 0.3); box-shadow: 0 0 15px var(--love-red); }
+
+        /* Page System & Cinematic Transitions */
+        .page {
+            display: none; min-height: 100vh; flex-direction: column; align-items: center;
+            justify-content: center; padding: 40px 20px; text-align: center;
+            opacity: 0; transition: opacity 1.5s ease-in-out, transform 1.5s ease;
+            transform: scale(0.95);
+        }
+        .page.active { display: flex; opacity: 1; transform: scale(1); }
+
+        h1, h2 { font-family: 'Playfair Display', serif; color: var(--gold); margin-bottom: 15px; font-weight: 600; letter-spacing: 1px; }
+        h1 { font-size: 3.5rem; text-shadow: 0 0 20px rgba(223, 177, 99, 0.4); }
+        h2 { font-size: 2.5rem; text-shadow: 0 0 15px rgba(223, 177, 99, 0.3); }
+        p { font-family: 'Lora', serif; font-size: 1.2rem; max-width: 650px; line-height: 1.8; color: #ddd; font-style: italic; }
+        .romantic-note { font-size: 1rem; color: var(--rose-gold); margin-top: 10px; letter-spacing: 2px; text-transform: uppercase; }
+
+        .btn {
+            margin-top: 40px; padding: 15px 45px; font-size: 1.1rem; letter-spacing: 1px;
+            background: transparent; border: 2px solid var(--rose-gold);
+            border-radius: 50px; color: var(--soft-pink); cursor: pointer;
+            transition: all 0.4s ease; position: relative; overflow: hidden;
+            backdrop-filter: blur(5px); font-family: 'Poppins', sans-serif;
+        }
+        .btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(223, 177, 99, 0.4), transparent);
+            transition: 0.5s;
+        }
+        .btn:hover::before { left: 100%; }
+        .btn:hover { background: rgba(183, 110, 121, 0.2); box-shadow: 0 0 20px rgba(183, 110, 121, 0.5); transform: translateY(-3px); }
+
+        /* 3D Gallery */
+        .gallery {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; 
+            width: 100%; max-width: 1000px; margin-top: 30px; perspective: 1000px;
+        }
+        .gallery-item {
+            width: 100%; height: 300px; border-radius: 15px; overflow: hidden;
+            transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-item:hover { transform: translateZ(50px) scale(1.05); border-color: var(--rose-gold); box-shadow: 0 15px 40px rgba(211,47,47,0.4); z-index: 10; cursor: pointer; }
+
+        /* Lightbox */
+        #lightbox {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.4s;
+        }
+        #lightbox img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 50px rgba(255,255,255,0.2); }
+        #lightbox.active { display: flex; opacity: 1; }
+
+        /* Timeline */
+        .timeline { position: relative; max-width: 800px; margin: 40px auto; border-left: 2px solid var(--rose-gold); padding-left: 30px; text-align: left; }
+        .timeline-item { margin-bottom: 40px; position: relative; opacity: 0; transform: translateX(-30px); transition: 1s ease; }
+        .timeline-item.visible { opacity: 1; transform: translateX(0); }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -37px; top: 0; width: 12px; height: 12px;
+            background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold);
+        }
+        .timeline-img { width: 100%; max-width: 300px; border-radius: 10px; margin-top: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+
+        /* Cinematic Slideshow (Ken Burns) */
+        .slideshow-wrapper {
+            position: relative; width: 100%; max-width: 800px; height: 500px; overflow: hidden;
+            border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.05);
+        }
+        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 2s ease-in-out; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1); }
+        .slide.active-slide { opacity: 1; }
+        .slide.active-slide img { animation: kenBurns 6s linear forwards; }
+        @keyframes kenBurns { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.1) translate(-2%, -2%); } }
+
+        /* 3D Love Card */
+        .card-container { perspective: 1200px; margin: 40px 0; }
+        .love-card {
+            width: 320px; height: 450px; position: relative; transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
+        }
+        .love-card.is-flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); text-align: center;
+        }
+        .card-front {
+            background: linear-gradient(135deg, #4a1525, #2a0815); border: 2px solid var(--rose-gold);
+        }
+        .card-front::after { content: '❤️'; font-size: 50px; animation: pulse 2s infinite; margin-top: 20px;}
+        .card-back {
+            background: url('https://www.transparenttextures.com/patterns/cream-paper.png'), #fdfbf7;
+            color: #2a0815; transform: rotateY(180deg);
+        }
+        .card-back p { color: #4a1525; font-size: 1.1rem; line-height: 1.6; }
+
+        /* Surprise Gift */
+        .gift-container { position: relative; cursor: pointer; margin-top: 40px; transition: transform 0.3s; }
+        .gift-container:hover { transform: scale(1.05); }
+        .gift-box { font-size: 120px; animation: shake 3s infinite cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: rotate3d(0, 0, 1, -2deg); } 20%, 80% { transform: rotate3d(0, 0, 1, 2deg); } 30%, 50%, 70% { transform: rotate3d(0, 0, 1, -4deg); } 40%, 60% { transform: rotate3d(0, 0, 1, 4deg); } }
+        
+        .hidden-message { display: none; margin-top: 30px; animation: fadeInUp 1s ease forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Floating Wishes */
+        .chat-bubble {
+            background: rgba(255,255,255,0.05); border-left: 3px solid var(--rose-gold); padding: 15px 25px;
+            border-radius: 15px; margin: 15px; backdrop-filter: blur(5px); display: inline-block;
+            animation: float 4s infinite ease-in-out alternate;
+        }
+        @keyframes float { from { transform: translateY(0px); } to { transform: translateY(-10px); } }
+
+        /* Typewriter */
+        .typewriter-text { font-family: 'Lora', serif; font-size: 1.4rem; min-height: 150px; max-width: 700px; line-height: 1.8; color: #eee; }
+        .cursor { display: inline-block; width: 2px; height: 1.2em; background-color: var(--gold); animation: blink 0.8s infinite; vertical-align: bottom; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8;} 50% { transform: scale(1.1); opacity: 1;} 100% { transform: scale(1); opacity: 0.8;} }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="bg-layer" id="main-bg"></div>
+    <div id="particles"></div>
+
+    <audio id="bg-music" loop>
+        <source src="bg-music.mp3" type="audio/mpeg">
+    </audio>
+    <button id="music-toggle" onclick="toggleMusic()">🔇</button>
+
+    <section class="page active" id="page-1">
+        <h1>Happy Birthday My Love, Jasmin Samantray ❤️</h1>
+        <p class="romantic-note">You make my world beautiful</p>
+        <button class="btn" onclick="goToPage(2)">Enter My Heart</button>
+    </section>
+
+    <section class="page" id="page-2">
+        <h2>Frames of Us</h2>
+        <p>Every picture tells a story of how lucky I am to have you.</p>
+        <div class="gallery">
+            <div class="gallery-item" onclick="openLightbox('IMG_20250209_135031_789.jpg')">
+                <img src="IMG_20250209_135031_789.jpg" alt="Jasmin 1">
+            </div>
+            <div class="gallery-item" onclick="openLightbox('Screenshot_20260126_234901_Instagram.jpg')">
+                <img src="Screenshot_20260126_234901_Instagram.jpg" alt="Jasmin 2">
+            </div>
+            <div class="gallery-item" onclick="openLightbox('WhatsApp Image 2026-01-18 at 6.54.53 PM.jpeg')">
+                <img src="WhatsApp Image 2026-01-18 at 6.54.53 PM.jpeg" alt="Jasmin 3">
+            </div>
+            <div class="gallery-item" onclick="openLightbox('IMG-20260311-WA0037.jpg')">
+                <img src="IMG-20260311-WA0037.jpg" alt="Jasmin 4">
+            </div>
+        </div>
+        <button class="btn" onclick="goToPage(3); checkTimeline();">Walk Down Memory Lane</button>
+    </section>
+
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Full Screen">
+    </div>
+
+    <section class="page" id="page-3">
+        <h2>Our Love Timeline</h2>
+        <p class="romantic-note">Every moment with you is special</p>
+        <div class="timeline" id="timeline-container">
+            <div class="timeline-item">
+                <h3>The Spark</h3>
+                <p>The moment our eyes met, my world changed forever.</p>
+                <img src="Gemini_Generated_Image_ (3).jpg" class="timeline-img">
+            </div>
+            <div class="timeline-item">
+                <h3>Colors of Joy</h3>
+                <p>Filling every day with laughter, smiles, and beautiful memories.</p>
+                <img src="Gemini_Generated_Image_ (1).jpg" class="timeline-img">
+            </div>
+        </div>
+        <button class="btn" onclick="goToPage(4); startTypewriter();">Read My Heart</button>
+    </section>
+
+    <section class="page" id="page-4">
+        <h2>A Letter to You</h2>
+        <div style="text-align: left; margin-top: 20px;">
+            <span class="typewriter-text" id="typewriter"></span><span class="cursor"></span>
+        </div>
+        <button class="btn" onclick="goToPage(5); startSlideshow();">See the Magic</button>
+    </section>
+
+    <section class="page" id="page-5">
+        <h2>Moments in Motion</h2>
+        <p class="romantic-note">I’m lucky to have you</p>
+        <div class="slideshow-wrapper">
+            <div class="slide active-slide"><img src="IMG_20250209_135031_789.jpg"></div>
+            <div class="slide"><img src="Screenshot_20260126_234901_Instagram.jpg"></div>
+            <div class="slide"><img src="WhatsApp Image 2026-01-18 at 6.54.53 PM.jpeg"></div>
+            <div class="slide"><img src="IMG-20260311-WA0037.jpg"></div>
+            <div class="slide"><img src="Gemini_Generated_Image_ (1).jpg"></div>
+        </div>
+        <button class="btn" onclick="goToPage(6)">Unlock My Heart</button>
+    </section>
+
+    <section class="page" id="page-6">
+        <h2>A Secret Note</h2>
+        <p>Tap the card to reveal what's inside.</p>
+        <div class="card-container">
+            <div class="love-card" onclick="this.classList.toggle('is-flipped')">
+                <div class="card-face card-front">
+                    <h3 style="color: var(--gold); font-family: 'Playfair Display'; font-size: 2rem;">For Jasmin</h3>
+                </div>
+                <div class="card-face card-back">
+                    <h3 style="font-family: 'Playfair Display'; font-size: 1.8rem; margin-bottom: 15px;">My Dearest,</h3>
+                    <p>On your special day, I just want you to know that you are my safest place and my greatest adventure. I love you more than words can say. Happy Birthday. ❤️</p>
+                </div>
+            </div>
+        </div>
+        <button class="btn" onclick="goToPage(7)">Let's Play a Game</button>
+    </section>
+
+    <section class="page" id="page-7">
+        <h2>How Well You Know Me</h2>
+        <div style="background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 1px solid var(--rose-gold); margin-top: 20px;">
+            <h3 style="margin-bottom: 20px; font-weight: 300;">Who loves you the absolute most in this universe?</h3>
+            <button class="btn" style="margin-top: 10px; margin-right: 10px;" onclick="showQuizResult()">You!</button>
+            <button class="btn" style="margin-top: 10px;" onclick="showQuizResult()">Definitely You!</button>
+            <p id="quiz-msg" style="margin-top: 20px; font-weight: bold; color: var(--gold); display: none; font-size: 1.5rem;">You know me perfectly ❤️</p>
+        </div>
+        <button class="btn" id="btn-quiz-next" style="display: none;" onclick="goToPage(8)">See the Wishes</button>
+    </section>
+
+    <section class="page" id="page-8">
+        <h2>Whispers of the Heart</h2>
+        <div style="margin-top: 20px;">
+            <div class="chat-bubble">"Wishing you endless joy and love today!" ✨</div>
+            <div class="chat-bubble" style="animation-delay: 1s;">"You light up every room you enter." 🌹</div>
+            <div class="chat-bubble" style="animation-delay: 2s;">"Happy Birthday to my dream come true." 🥂</div>
+        </div>
+        <button class="btn" onclick="goToPage(9)">Are you ready?</button>
+    </section>
+
+    <section class="page" id="page-9">
+        <h2>A Special Surprise</h2>
+        <p>Tap the gift box...</p>
+        <div class="gift-container" onclick="triggerSurprise(this)">
+            <div class="gift-box">🎁</div>
+        </div>
+        <div class="hidden-message" id="surprise-msg">
+            <h1 style="color: var(--love-red); font-size: 3rem;">You are my forever, Jasmin ❤️</h1>
+            <button class="btn" onclick="goToPage(10); triggerFinale();">One Last Thing</button>
+        </div>
+    </section>
+
+    <section class="page" id="page-10">
+        <h1 style="font-size: 4rem;">Happy Birthday, My Love.</h1>
+        <p style="font-size: 1.5rem; color: white;">No matter what, I will always love you.</p>
+        <button class="btn" onclick="goToPage(1)">Relive Our Love Story</button>
+    </section>
+
+    <script>
+        // --- Particle Hearts Logic ---
+        function createHearts() {
+            const container = document.getElementById('particles');
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart-particle');
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                container.appendChild(heart);
+                setTimeout(() => { heart.remove(); }, 7000);
+            }, 400);
+        }
+        createHearts();
+
+        // --- Page Transitions ---
+        function goToPage(num) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(p => {
+                p.style.opacity = '0';
+                p.style.transform = 'scale(0.95)';
+                setTimeout(() => p.classList.remove('active'), 800); // Wait for fade out
+            });
+            
+            setTimeout(() => {
+                const target = document.getElementById(`page-${num}`);
+                target.classList.add('active');
+                // Force reflow
+                void target.offsetWidth;
+                target.style.opacity = '1';
+                target.style.transform = 'scale(1)';
+                window.scrollTo(0,0);
+            }, 800);
+        }
+
+        // --- Music Logic ---
+        let isPlaying = false;
+        const music = document.getElementById('bg-music');
+        function toggleMusic() {
+            if (isPlaying) { music.pause(); document.getElementById('music-toggle').innerText = "🔇"; } 
+            else { music.play().catch(e=>console.log("Audio play failed.")); document.getElementById('music-toggle').innerText = "🎵"; }
+            isPlaying = !isPlaying;
+        }
+
+        // --- Lightbox ---
+        function openLightbox(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').classList.add('active');
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        // --- Timeline Scroll Animation ---
+        function checkTimeline() {
+            setTimeout(() => {
+                const items = document.querySelectorAll('.timeline-item');
+                items.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('visible');
+                    }, index * 600);
+                });
+            }, 1000);
+        }
+
+        // --- Typewriter Logic ---
+        const romanticText = "Jasmin, from the moment you walked into my life, everything became brighter. Your smile is my favorite view, and your laugh is my favorite sound. Happy Birthday to the girl who stole my heart. I love you.";
+        let charIndex = 0;
+        let typeInterval;
+        function startTypewriter() {
+            charIndex = 0;
+            document.getElementById('typewriter').innerHTML = "";
+            clearInterval(typeInterval);
+            typeInterval = setInterval(() => {
+                if(charIndex < romanticText.length) {
+                    document.getElementById('typewriter').innerHTML += romanticText.charAt(charIndex);
+                    charIndex++;
+                } else { clearInterval(typeInterval); }
+            }, 60);
+        }
+
+        // --- Cinematic Slideshow ---
+        let slideIndex = 0;
+        let slideInterval;
+        function startSlideshow() {
+            clearInterval(slideInterval);
+            let slides = document.querySelectorAll('.slide');
+            slideInterval = setInterval(() => {
+                slides.forEach(s => s.classList.remove('active-slide'));
+                slideIndex = (slideIndex + 1) % slides.length;
+                slides[slideIndex].classList.add('active-slide');
+            }, 5500); // Syncs with CSS Ken Burns duration
+        }
+
+        // --- Quiz ---
+        function showQuizResult() {
+            document.getElementById('quiz-msg').style.display = 'block';
+            document.getElementById('btn-quiz-next').style.display = 'inline-block';
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#d32f2f', '#ffc0cb'] });
+        }
+
+        // --- Surprise Explosion ---
+        function triggerSurprise(el) {
+            el.style.display = 'none';
+            document.getElementById('surprise-msg').style.display = 'block';
+            
+            // Heart Explosion
+            const duration = 3000;
+            const end = Date.now() + duration;
+            (function frame() {
+                confetti({
+                    particleCount: 7, angle: 60, spread: 55, origin: { x: 0 },
+                    colors: ['#d32f2f', '#ffc0cb', '#ffffff'],
+                    shapes: ['circle']
+                });
+                confetti({
+                    particleCount: 7, angle: 120, spread: 55, origin: { x: 1 },
+                    colors: ['#d32f2f', '#ffc0cb', '#ffffff'],
+                    shapes: ['circle']
+                });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        // --- Finale Night Sky ---
+        function triggerFinale() {
+            document.getElementById('main-bg').classList.add('starry-bg');
+            document.getElementById('main-bg').style.opacity = "1";
+            
+            setInterval(() => {
+                confetti({
+                    particleCount: 15, spread: 120, startVelocity: 45,
+                    origin: { x: Math.random(), y: Math.random() - 0.2 },
+                    colors: ['#dfb163', '#ffffff', '#ffc0cb'],
+                    zIndex: 0
+                });
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
